@@ -1,0 +1,1 @@
+Working through Deep Learning in R by JJ Allaire
