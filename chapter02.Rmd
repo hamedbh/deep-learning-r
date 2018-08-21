@@ -127,10 +127,50 @@ An example of one image.
 plot(as.raster(train_images[5, , ], max = 255))
 ```
 
-More examples of tensor slicing.
+It's possible to add tensors of different shapes.
 
 ```{r}
-
+x <- array(round(runif(1000, 0, 9)), dim = c(64, 3, 32, 10))
+y <- array(5, dim = c(32, 10))
+z <- sweep(x, c(3, 4), y, pmax) # sweep across the two axes where the dimensions
+                                # match
+dim(z)
 ```
 
+The tensor dot is like a dot product of vectors, returning a scalar.
+
+```{r}
+naive_vector_dot <- function(x, y) {
+    z <- 0
+    for (i in seq_along(x)) {
+        z <- z + x[[i]] * y[[i]]
+    }
+    z
+}
+naive_vector_dot(1:10, 1:10)
+```
+
+Can do similar with matrices. All of this is essentially the same as matrix and vector operations.
+
+Use `reticulate::array_reshape()` to change dimensions instead of `dim()`, because it works row-major (compatible with TensorFlow, NumPy etc.) instead of column-major (R's default).
+
+```{r}
+x <- matrix(c(0, 1, 
+              2, 3, 
+              4, 5), 
+            nrow = 3, ncol = 2, byrow = TRUE)
+x
+x <- array_reshape(x, dim = c(6, 1))
+x
+x <- array_reshape(x, dim = c(2, 3))
+x
+```
+
+Transposing done easily with `t()`.
+
+```{r}
+x <- matrix(0, nrow = 300, ncol = 20)
+dim(x)
+dim(t(x))
+```
 
