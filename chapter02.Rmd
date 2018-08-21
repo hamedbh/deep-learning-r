@@ -1,0 +1,136 @@
+---
+title: "Chapter 2: Building Blocks Neural Networks"
+output: html_notebook
+---
+
+# Example Classifier
+
+Build a classifier for the MNIST dataset: the `"hello world"` of deep learning.
+
+```{r}
+library(keras)
+
+mnist <- dataset_mnist()
+train_images <- mnist$train$x
+train_labels <- mnist$train$y
+test_images <- mnist$test$x
+test_labels <- mnist$test$y
+```
+
+```{r}
+str(train_images)
+str(train_labels)
+str(test_images)
+str(test_labels)
+```
+
+
+
+Now set up the architecture of the neural network.
+
+```{r}
+network <- keras_model_sequential() %>% 
+    layer_dense(units = 512, 
+                activation = "relu", 
+                input_shape = c(28 * 28)) %>% 
+    layer_dense(units = 10, 
+                activation = "softmax")
+```
+
+Now need to add a loss function, an optimiser, and metrics to monitor during training and testing.
+
+```{r}
+network %>% 
+    compile(
+        optimizer = "rmsprop", 
+        loss = "categorical_crossentropy", 
+        metrics = c("accuracy")
+    )
+```
+
+Now reshape and scale the data.
+
+```{r}
+train_images <- array_reshape(train_images, 
+                              c(60000, 28 * 28))
+train_images <- train_images / 255
+
+test_images <- array_reshape(test_images, 
+                             c(10000, 28 * 28))
+test_images <- test_images/255
+```
+
+And change labels to required structure.
+
+```{r}
+train_labels <- to_categorical(train_labels)
+test_labels <- to_categorical(test_labels)
+```
+
+Now train the network using `keras::fit()`.
+
+```{r}
+network %>% 
+    fit(train_images, 
+        train_labels, 
+        epochs = 5, 
+        batch_size = 128)
+```
+
+```{r}
+metrics <- network %>% 
+    evaluate(test_images, 
+             test_labels)
+metrics
+```
+
+```{r}
+network %>% 
+    predict_classes(test_images[1:10, ])
+```
+
+#  Data Structures
+
+```{r}
+# 0D tensor
+# R doesn't exactly have an equivalent of a scalar/0D tensor, but a vector
+# of length 1 is about the same
+zeroD <- 1
+
+# 1D tensor
+# just a vector
+oneD <- c(1, 4, 9, 16)
+
+# 2D tensor
+# this is a matrix
+twoD <- matrix(rep(0, 3 * 5), nrow = 3, ncol = 5)
+dim(twoD)
+
+# 3D and above tensors
+# pack matrices into an array, form a cube, which is a 3D tensor
+threeD <- array(rep(0, 2 * 3 * 2), dim = c(2, 3, 2))
+str(threeD)
+dim(threeD)
+# can then put 3D tensors in an array to make 4D tensor, those to make 5D etc.
+```
+
+```{r}
+train_images <- mnist$train$x
+train_labels <- mnist$train$y
+test_images <- mnist$test$x
+test_labels <- mnist$test$y
+```
+
+An example of one image.
+
+```{r}
+plot(as.raster(train_images[5, , ], max = 255))
+```
+
+More examples of tensor slicing.
+
+```{r}
+
+```
+
+
