@@ -114,4 +114,12 @@ results <- model %>%
 results
 ```
 
-Just reducing the number of epochs gets much better performance.
+Just reducing the number of epochs gets much better performance. Now use that model to predict on test data.
+
+```{r}
+model %>% 
+    predict(x_test[1:10, ])
+```
+
+Varying confidence on these examples.
+
