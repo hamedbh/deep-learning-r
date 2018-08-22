@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "Chapter 3, Example 2: Multiclass Single-label"
 output: html_notebook
 ---
 # Classifying Reuters Newswires
