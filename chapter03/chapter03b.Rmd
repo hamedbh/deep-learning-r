@@ -1,0 +1,123 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+# Classifying Reuters Newswires
+
+```{r}
+library(keras)
+reuters <- dataset_reuters(num_words = 10000)
+c(c(train_data, train_labels), c(test_data, test_labels)) %<-% reuters
+```
+
+Vectorise the data as above.
+
+```{r}
+x_train <- vectorise_sequences(train_data)
+x_test <- vectorise_sequences(test_data)
+one_hot_train_labels <- to_categorical(train_labels)
+one_hot_test_labels <- to_categorical(test_labels)
+```
+
+Build the network. NB. use large enough hidden layers to capture the complexity of the data, e.g. the number of classes.
+
+```{r}
+model <- keras_model_sequential() %>%
+    layer_dense(units = 64, activation = "relu", input_shape = c(10000)) %>%
+    layer_dense(units = 64, activation = "relu") %>%
+    layer_dense(units = 46, activation = "softmax")
+
+model %>% compile(
+    optimizer = "rmsprop",
+    loss = "categorical_crossentropy",
+    metrics = c("accuracy"))
+```
+
+Reserve 1,000 samples for validation.
+
+```{r}
+val_indices <- 1:1000
+x_val <- x_train[val_indices,]
+partial_x_train <- x_train[-val_indices,]
+y_val <- one_hot_train_labels[val_indices,]
+partial_y_train = one_hot_train_labels[-val_indices,]
+```
+
+Now train the network for 20 epochs.
+
+```{r}
+history <- model %>% fit(
+    partial_x_train,
+    partial_y_train,
+    epochs = 20,
+    batch_size = 512,
+    validation_data = list(x_val, y_val))
+```
+
+```{r}
+plot(history)
+```
+
+Overfitting from after nine epochs. Train again for nine only.
+
+```{r}
+model <- keras_model_sequential() %>%
+    layer_dense(units = 64, activation = "relu", input_shape = c(10000)) %>%
+    layer_dense(units = 64, activation = "relu") %>%
+    layer_dense(units = 46, activation = "softmax")
+model %>% compile(
+    optimizer = "rmsprop",
+    loss = "categorical_crossentropy",
+    metrics = c("accuracy"))
+
+history <- model %>% fit(
+    partial_x_train,
+    partial_y_train,
+    epochs = 9,
+    batch_size = 512,
+    validation_data = list(x_val, y_val))
+
+results <- model %>% evaluate(x_test, one_hot_test_labels)
+results
+```
+
+Can compare this to a pseudo-random assignment of classes as a baseline.
+
+```{r}
+mean(test_labels == sample(test_labels))
+```
+
+Now generate predictions.
+
+```{r}
+predictions <- model %>% predict(x_test)
+```
+
+If we make the hidden layers too small we fail to capture complexity.
+
+```{r}
+model <- keras_model_sequential() %>%
+    layer_dense(units = 64,
+                activation = "relu",
+                input_shape = c(10000)) %>%
+    layer_dense(units = 4, activation = "relu") %>%
+    layer_dense(units = 46, activation = "softmax")
+
+model %>% compile(optimizer = "rmsprop",
+                  loss = "categorical_crossentropy",
+                  metrics = c("accuracy"))
+
+model %>% fit(
+    partial_x_train,
+    partial_y_train,
+    epochs = 20,
+    batch_size = 128,
+    validation_data = list(x_val, y_val))
+```
+
+```{r}
+results <- model %>% 
+    evaluate(x_test, one_hot_test_labels)
+results
+```
+

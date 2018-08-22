@@ -1,0 +1,17 @@
+---
+title: "Chapter 3, Example 3: Regression"
+output: html_notebook
+---
+
+# Predicting House Prices
+
+Use Boston dataset for a regression example.
+
+```{r}
+dataset <- dataset_boston_housing()
+c(c(train_data, train_targets), c(test_data, test_targets)) %<-% dataset
+str(train_data)
+str(test_data)
+str(train_targets)
+```
+
