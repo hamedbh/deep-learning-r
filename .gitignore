@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 *.nb.html
+chapter05/data/*
+*h5

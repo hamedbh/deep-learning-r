@@ -1,5 +1,5 @@
 ---
-title: "Convnets"
+title: "Convnets, first example"
 output: html_notebook
 ---
 
