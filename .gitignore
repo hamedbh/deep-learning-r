@@ -5,3 +5,5 @@
 *.nb.html
 chapter05/data/*
 *h5
+.DS_Store
+
